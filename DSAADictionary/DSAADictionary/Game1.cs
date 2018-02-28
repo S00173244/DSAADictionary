@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using NSLoader;
@@ -17,7 +18,8 @@ namespace DSAADictionary
         TimeSpan time = new TimeSpan(); 
         Dictionary<string, Texture2D> badges = new Dictionary<string, Texture2D>();
         KeyValuePair<string,Texture2D> _current;
-
+        Dictionary<string, Texture2D>.Enumerator enu;
+        
         
         public Game1()
         {
@@ -47,7 +49,17 @@ namespace DSAADictionary
             // Create a new SpriteBatch, which can be used to draw textures.
             spriteBatch = new SpriteBatch(GraphicsDevice);
             badges = Loader.ContentLoad<Texture2D>(Content,"Badges");
-            badges.GetEnumerator().MoveNext();
+            TextureManager.allTextures = Loader.ContentLoad<Texture2D>(Content, "Badges");
+
+            //badges.TryGetValue("Badges_" + n, out texture);
+            enu = badges.GetEnumerator();
+            enu.MoveNext();
+            _current = enu.Current;
+            AudioManager.SoundEffects = Loader.ContentLoad<SoundEffect>(Content, "Sounds");
+            SoundEffectInstance player = null;
+            AudioManager.Play(ref player, "sound1");
+            
+            //AudioManager.Play(ref player, "sound1");
             // TODO: use this.Content to load your game content here
         }
 
@@ -70,13 +82,39 @@ namespace DSAADictionary
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Escape))
                 Exit();
             time += gameTime.ElapsedGameTime;
-            if(time.Seconds > 1)
+
+
+            SoundEffectInstance s = AudioManager.SoundEffects["sound1"].CreateInstance();
+            s.Play();
+
+
+            //if(time.Seconds > 1)
+            //{
+            //    time = new TimeSpan();
+            //    badges.TryGetValue("Badges_" + n, out texture);
+
+            //    n++;
+            //    if (n >= 14)
+            //    {
+            //        n = 0;
+            //    } 
+            //}
+
+
+            if (time.Seconds > 1)
             {
                 time = new TimeSpan();
-                badges.GetEnumerator().MoveNext();
-                _current = badges.GetEnumerator().Current;
+                
+                _current = enu.Current;
+                if (!enu.MoveNext())
+                {
+                    enu = badges.GetEnumerator();
+                    enu.MoveNext();
+                }
+                Console.WriteLine(_current.Value);
             }
-            
+
+
             // _current = badges.;
 
             //badges.GetEnumerator().MoveNext();
@@ -87,6 +125,8 @@ namespace DSAADictionary
             //Console.WriteLine("Enum : " + badges.GetEnumerator());
             //Console.WriteLine("Game time : " + gameTime.ElapsedGameTime);
             // TODO: Add your update logic here
+
+
 
             base.Update(gameTime);
         }

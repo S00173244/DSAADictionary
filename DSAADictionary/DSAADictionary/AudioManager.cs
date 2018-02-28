@@ -17,7 +17,7 @@ namespace NSLoader
             if (_playInstance == null) 
             {
                 _playInstance = AudioManager.SoundEffects[sound].CreateInstance();
-                _playInstance.Play();
+                //_playInstance.Play();
             }
             else if (_playInstance != null)
             {
@@ -27,6 +27,8 @@ namespace NSLoader
                     _playInstance = null;
                 }
             }
+
+           
         }
     }
 }
